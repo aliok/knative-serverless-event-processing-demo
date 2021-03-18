@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kafka-smasher
+  namespace: my-namespace
+spec:
+  template:
+    spec:
+      containers:
+      - name: kafka-smasher
+        image: docker.io/aliok/kafka-smasher:latest
+        env:
+          - name: KAFKA_HOST
+            value: my-cluster-kafka-bootstrap.kafka:9092
+          - name: KAFKA_TOPIC
+            value: kafkasource-demo
+          - name: MESSAGE_COUNT
+            value: '20000'
+          - name: MESSAGE_FREQUENCY
+            value: '0'
+      restartPolicy: Never
