@@ -1,5 +1,42 @@
 # Knative Serverless Event Processing Demo
 
+## Introduction
+
+This project demonstrates how to do serverless event processing with Knative.
+
+A special application, `kafka-smasher` located in the source tree, produces lots of messages to the Kafka cluster.
+
+KafkaSource fetches them and then sends them to the Knative service called `request-logger`, which is also located in the source tree.
+`request-logger` is a very simple application that only logs the requests it receives.
+
+Since `kafka-smasher` is sending a lot of messages, Knative will scale the `request-logger` horizontally to multiple pods and kill
+the pods once all messages are consumed from Kafka. 
+
+Following the diagram of the workflow:
+
+```
+                            ┌───────────┐                                   Knative Service
+                            │           │        ┌───────────────┐    ┌─────────────────────────┐
+┌──────────────────┐        │           │        │               │    │                         │
+│ Message Producer ├────────►   Kafka   ├────────►  KafkaSource  ├────►─┐                       │
+│  (kafka-smasher) │        │           │        │               │    │ │                       │
+└──────────────────┘        │           │        └───────────────┘    │ │                       │
+                            └───────────┘                             │ │  ┌──────────────────┐ │
+                                                                      │ ├──►       Pod        │ │
+                                                                      │ │  │ (request-logger) │ │
+                                                                      │ │  └──────────────────┘ │
+                                                                      │ │                       │
+                                                                      │ │  ┌──────────────────┐ │
+                                                                      │ └──►       Pod        │ │
+                                                                      │    │ (request-logger) │ │
+                                                                      │    └──────────────────┘ │
+                                                                      │                         │
+                                                                      │                         │
+                                                                      │         ...             │
+                                                                      └─────────────────────────┘
+```
+
+
 ## Prerequisites
 
 * Docker
